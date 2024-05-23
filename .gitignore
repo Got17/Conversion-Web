@@ -1,0 +1,12 @@
+/*.user
+/Properties
+/.vs
+/bin
+/obj
+/.config
+/wwwroot
+/build
+/node_modules
+*.tmp
+/SqlProvider
+websharper.log
