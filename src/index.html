@@ -13,24 +13,35 @@
             text-align: center;
             font-family: Arial, Helvetica, sans-serif;
             background-color: #114B5F; 
-            padding: 20px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
+        
 
         a {
             color: white;
             text-decoration: none;
         }
 
+        .homepage {
+            width: 100%;
+            text-align: center;
+            padding-top: 20px;
+        }
+
         .header {
             font-size: 36px;
             font-weight: bold;
-            color: #F3E9D2;
+            color: #ffffff;
             margin-bottom: 50px;
         }
 
         .button-container {
             display: flex;
             justify-content: center;
+            align-items: center;
+            gap: 25px;
             margin-left: 20px;
             margin-right: 20px;
         }
@@ -38,7 +49,7 @@
         .temperature-button,
         .mass-button,
         .length-button {
-            font-size: 20px;
+            font-size: auto;
             font-weight: 800;
             color: white;
             background-color: #1A936F;
@@ -50,7 +61,8 @@
             padding: 150px 50px;
             border-radius: 10px;
             cursor: pointer;
-            margin-right: 25px;
+            width: 250px;
+            text-align: center;
         }
 
             .temperature-button:hover,
@@ -90,6 +102,11 @@
                 color: #6F8F72;
             }
 
+        .conversionPage {
+            width: 100%;
+            padding: 20px 20px;
+        }    
+
         .headline {
             display: flex;
             justify-content: space-between;
@@ -102,11 +119,16 @@
             text-decoration: underline;
         }
 
-        .header {
+        .header p {
             font-size: 36px;
             font-weight: bold;
             color: white;
             margin-bottom: 50px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: center;
         }
 
         .center {
@@ -128,7 +150,7 @@
         .display-input {
             font-family: Arial, Helvetica, sans-serif, sans-serif;
             color: #333;
-            font-size: 1.2rem;
+            font-size: 16px;
             margin: 0 auto;
             padding: 1.5rem 2rem;
             border-radius: 0.2rem;
@@ -175,12 +197,25 @@
                 opacity: .5;
             }
 
+    @media screen and (max-width: 800px) {
+        .button-container {
+            flex-direction: column;
+        }
+        .temperature-button, .mass-button, .length-button {
+            padding: 30px 50px;
+            margin-top: 10px;
+        }
+        .header {
+            font-size: 20px;
+        }
+    }
+
     </style>
 </head>
 <body>
     <div ws-replace="homepageContainer"></div>
-    <div ws-template="homepage">
-        <div class="header">Home Page</div>
+    <div class="homepage" ws-template="homepage">
+        <div class="header"><p>Home Page</p></div>
         <div class="button-container">
             <div class="temperature-button-container">
                 <a class="temperature-button" href="${TemperaturePage}">Temperature <br /><span>Converter</span></a>
@@ -196,7 +231,7 @@
     <div ws-replace="convertContainer1"></div>
     <div ws-replace="convertContainer2"></div>
     <div ws-replace="convertContainer3"></div>
-    <div ws-template="conversionPage">
+    <div class="conversionPage" ws-template="conversionPage">
         <div class="headline">
             <a class="to-homepage" href="${ToHomepage}">Back to Homepage</a>
             <div class="header">${converterHeader} Converter</div>
