@@ -11,36 +11,56 @@ type TemperatureTemplate = Template<"src/index.html", ClientLoad.FromDocument>
 
 [<JavaScript>]
 module TemperaturePage =
-    
+
+    let convertTemperature degree (fromUnit:string) (toUnit:string) = 
+        let mutable result = 0.0
+        if (fromUnit = "c" && toUnit = "f") then
+            View.Map (fun (value:string) ->
+                result <- (float value * 1.8) + 32.0
+                sprintf "%.2f" result
+            ) degree
+
+        elif (fromUnit = "c" && toUnit = "k") then
+            View.Map (fun (value:string) ->
+                result <- (float value + 273.15)
+                sprintf "%.2f" result
+            ) degree
+
+        elif (fromUnit = "k" && toUnit = "c") then
+            View.Map (fun (value:string) ->
+                result <- float value - 273.15
+                sprintf "%.2f" result
+            ) degree
+
+        elif (fromUnit = "k" && toUnit = "f") then
+            View.Map (fun (value:string) ->
+                result <- 1.8 * (float value - 273.15) + 32.0
+                sprintf "%.2f" result
+            ) degree
+
+        elif (fromUnit = "f" && toUnit = "k") then
+            View.Map (fun (value:string) ->
+                result <- (float value - 32.0) * 5.0/9.0 + 273.15
+                sprintf "%.2f" result
+            ) degree
+
+        elif (fromUnit = "f" && toUnit = "c") then
+            View.Map (fun (value:string) ->
+                result <- (float value - 32.0) * (5.0 / 9.0)
+                sprintf "%.2f" result
+            ) degree
+
+        else degree
+
+    // Create a variable to store the input value
+    let input = Var.Create "0"
+
+    // Create a view for the input value
+    let viewInput = input.View
+        
     // Define a function to render the temperature converter page with Celsius input
     let CelsiusPage() =
-        // Create a variable to store the input value
-        let input = Var.Create "0"
 
-        // Create a view for the input value
-        let viewInput = input.View
-
-        // Define a function to convert Celsius to Fahrenheit
-        let celsiusToFarenheit() =
-            View.Map (fun (value:string) ->
-                try
-                    let result = (float value * 1.8) + 32.0
-                    
-                    sprintf "%.2f" result
-                with _ ->
-                    "Error"
-            ) viewInput
-
-        // Define a function to convert Celsius to Kelvin
-        let celsiusToKelvin() = 
-            View.Map ( fun (value:string) ->
-                try     
-                    let result = (float value + 273.15)
-                    sprintf "%.2f" result
-                with _ ->
-                    "Error" 
-            ) viewInput
-        
         // Render the conversion page using the TemperatureTemplate
         TemperatureTemplate.conversionPage()
             // Set link to homepage
@@ -70,9 +90,9 @@ module TemperaturePage =
             // Bind viewInput to show the input value
             .convertFromResult(viewInput)
             // Bind the result of Celsius to Fahrenheit conversion
-            .convertToResult1(celsiusToFarenheit())
+            .convertToResult1(convertTemperature viewInput "c" "f")
             // Bind the result of Celsius to Kelvin conversion
-            .convertToResult2(celsiusToKelvin())
+            .convertToResult2(convertTemperature viewInput "c" "k")
             // Set link to change to Fahrenheit page
             .changeTo1("/temperatureFahrenheit")
             // Set button text for changing to Fahrenheit page
@@ -85,28 +105,6 @@ module TemperaturePage =
 
     // Define a function to render the temperature converter page with Kelvin input
     let KelvinPage() =
-        let input = Var.Create "0"
-
-        let viewInput = input.View
-
-        let kelvinToCelsius() =
-            View.Map (fun (value:string) ->
-                try
-                    let result = float value - 273.15
-                    
-                    sprintf "%.2f" result
-                with _ ->
-                    "Error"
-            ) viewInput
-
-        let kelvinToFahrenheit() = 
-            View.Map ( fun (value:string) ->
-                try     
-                    let result = 1.8 * (float value - 273.15) + 32.0
-                    sprintf "%.2f" result
-                with _ ->
-                    "Error" 
-            ) viewInput
         
         TemperatureTemplate.conversionPage()
             .ToHomepage("/")
@@ -122,39 +120,16 @@ module TemperaturePage =
             .Placeholder("kelvin")
             .input(input)
             .convertFromResult(viewInput)
-            .convertToResult1(kelvinToCelsius())
-            .convertToResult2(kelvinToFahrenheit())
+            .convertToResult1(convertTemperature viewInput "k" "c")
+            .convertToResult2(convertTemperature viewInput "k" "f")
             .changeTo1("/temperatureFahrenheit")
             .changeToButton1("Fahrenheit")
             .changeTo2("/temperatureCelsius")
             .changeToButton2("Celsius")
             .Doc()
 
-
     // Define a function to render the temperature converter page with Fahrenheit input
     let FahrenheitPage() =
-        let input = Var.Create "0"
-
-        let viewInput = input.View
-
-        let fahrenheitToCelsius() =
-            View.Map (fun (value:string) ->
-                try
-                    let result = (float value - 32.0) * (5.0 / 9.0)
-                    
-                    sprintf "%.2f" result
-                with _ ->
-                    "Error"
-            ) viewInput
-
-        let fahrenheitToKelvin() = 
-            View.Map ( fun (value:string) ->
-               try     
-                    let result = (float value - 32.0) * 5.0/9.0 + 273.15
-                    sprintf "%.2f" result
-                with _ ->
-                    "Error" 
-            ) viewInput
         
         TemperatureTemplate.conversionPage()
             .ToHomepage("/")
@@ -170,8 +145,8 @@ module TemperaturePage =
             .Placeholder("fahrenheit")
             .input(input)
             .convertFromResult(viewInput)
-            .convertToResult1(fahrenheitToCelsius())
-            .convertToResult2(fahrenheitToKelvin())
+            .convertToResult1(convertTemperature viewInput "f" "c")
+            .convertToResult2(convertTemperature viewInput "f" "k")
             .changeTo1("/temperatureCelsius")
             .changeToButton1("Celsius")
             .changeTo2("/temperatureKelvin")

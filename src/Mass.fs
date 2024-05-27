@@ -10,36 +10,56 @@ type MassTemplate = Template<"src/index.html", ClientLoad.FromDocument>
 
 [<JavaScript>]
 module MassPage =
-    
+
+    let convertMass mass (fromUnit:string) (toUnit:string) = 
+        let mutable result = 0.0
+        if (fromUnit = "g" && toUnit = "mg") then
+            View.Map (fun (value:string) ->
+                result <- float value * 1000.0
+                $"{result}"
+            ) mass
+
+        elif (fromUnit = "g" && toUnit = "kg") then
+            View.Map (fun (value:string) ->
+                result <- float value / 1000.0
+                $"{result}"
+            ) mass
+
+        elif (fromUnit = "kg" && toUnit = "g") then
+            View.Map (fun (value:string) ->
+                result <- float value * 1000.0
+                $"{result}"
+            ) mass
+
+        elif (fromUnit = "kg" && toUnit = "mg") then
+            View.Map (fun (value:string) ->
+                result <- float value * 1000000.0
+                $"{result}"
+            ) mass
+
+        elif (fromUnit = "mg" && toUnit = "g") then
+            View.Map (fun (value:string) ->
+                result <- float value / 1000.0
+                $"{result}"
+            ) mass
+
+        elif (fromUnit = "mg" && toUnit = "kg") then
+            View.Map (fun (value:string) ->
+                result <- float value / 1000000.0
+                $"{result}"
+            ) mass
+
+        else mass
+
+    // Create a variable to store the input value
+    let input = Var.Create "0"
+
+    // Create a view for the input value
+    let viewInput = input.View
+        
     // Define a function to render the mass converter page with Gram input
     let GramPage() =
-        // Create a variable to store the input value
-        let input = Var.Create "0"
 
-        // Create a view for the input value
-        let viewInput = input.View
-
-        // Define a function to convert Gram to Milligram
-        let gramToMilligram() =
-            View.Map (fun (value:string) ->
-                try
-                    let result = float value * 1000.0
-                    
-                    $"{result}"
-                with _ ->
-                    "Error"
-            ) viewInput
-
-        // Define a function to convert Gram to Kilogram
-        let gramToKilogram() = 
-            View.Map ( fun (value:string) ->
-                try     
-                    let result = float value / 1000.0
-                    $"{result}"
-                with _ ->
-                    "Error" 
-            ) viewInput
-        
         // Render the conversion page using the MassTemplate
         MassTemplate.conversionPage()
             .ToHomepage("/")
@@ -55,8 +75,8 @@ module MassPage =
             .Placeholder("gram")
             .input(input)
             .convertFromResult(viewInput)
-            .convertToResult1(gramToMilligram())
-            .convertToResult2(gramToKilogram())
+            .convertToResult1(convertMass viewInput "g" "mg")
+            .convertToResult2(convertMass viewInput "g" "kg")
             .changeTo1("/massMilligram")
             .changeToButton1("Milligram")
             .changeTo2("/massKilogram")
@@ -65,28 +85,6 @@ module MassPage =
 
     // Define a function to render the mass converter page with Milligram input
     let MilligramPage() =
-        let input = Var.Create "0"
-
-        let viewInput = input.View
-
-        let milligramToGram() =
-            View.Map (fun (value:string) ->
-                try
-                    let result = float value * 1000.0
-                    
-                    $"{result}"
-                with _ ->
-                    "Error"
-            ) viewInput
-
-        let milligramToKilogram() = 
-            View.Map ( fun (value:string) ->
-                try     
-                    let result = float value / 1000000.0
-                    $"{result}"
-                with _ ->
-                    "Error" 
-            ) viewInput
         
         MassTemplate.conversionPage()
             .ToHomepage("/")
@@ -102,8 +100,8 @@ module MassPage =
             .Placeholder("milligram")
             .input(input)
             .convertFromResult(viewInput)
-            .convertToResult1(milligramToGram())
-            .convertToResult2(milligramToKilogram())
+            .convertToResult1(convertMass viewInput "mg" "g")
+            .convertToResult2(convertMass viewInput "mg" "kg")
             .changeTo1("/massGram")
             .changeToButton1("Gram")
             .changeTo2("/massKilogram")
@@ -113,20 +111,7 @@ module MassPage =
 
     // Define a function to render the mass converter page with Kilogram input
     let KilogramPage() =
-        let input = Var.Create "0"
 
-        let viewInput = input.View
-
-        let kilogramToGramAndMilligram (num: float) =
-            View.Map (fun (value:string) ->
-                try
-                    let result = float value * num // 1000.0
-                    
-                    $"{result}"
-                with _ ->
-                    "Error"
-            ) viewInput
-        
         MassTemplate.conversionPage()
             .ToHomepage("/")
             .converterHeader("Mass")
@@ -141,8 +126,8 @@ module MassPage =
             .Placeholder("Kilogram")
             .input(input)
             .convertFromResult(viewInput)
-            .convertToResult1(kilogramToGramAndMilligram 1000.0)
-            .convertToResult2(kilogramToGramAndMilligram 1000000.0)
+            .convertToResult1(convertMass viewInput "kg" "g")
+            .convertToResult2(convertMass viewInput "kg" "mg")
             .changeTo1("/massGram")
             .changeToButton1("Gram")
             .changeTo2("/massMilligram")
